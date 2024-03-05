@@ -38,6 +38,66 @@ If you have a Node.js project with an \`npm start\` script, you can use LogScree
 
 For Linux users, you can use LogScreen with the \`tail\` command to follow and visualize real-time updates in system logs.
 
+#### Monitoring Remote Server Logs
+
+```bash
+ssh user@remote-server 'tail -f /path/to/logs' | npx logscreen
+```
+
+SSH into a remote server and tail logs in real-time using logscreen for diagnosing issues on a production server.
+
+#### Monitoring Nginx Access Logs
+
+```bash
+tail -f /var/log/nginx/access.log | npx logscreen
+```
+
+Tail Nginx access logs to observe incoming requests, response codes, and other relevant information.
+
+#### Tail Apache Error Logs
+
+```bash
+tail -f /var/log/apache2/error.log | npx logscreen
+```
+
+Monitor Apache error logs to identify issues with your web server.
+
+#### Google Cloud Functions Logging:
+
+Use logscreen to monitor logs from Google Cloud Functions, gaining insights into function executions, errors, and overall performance.
+
+```bash
+gcloud functions logs read <function-name> | npx logscreen
+```
+
+#### Kubernetes Logs
+
+```bash
+kubectl logs -f <pod-name> | npx logscreen
+```
+
+#### AWS lambda
+
+```bash
+aws logs tail /aws/lambda/<function-name> | npx logscreen
+```
+
+#### EC2 Instance
+
+```bash
+ssh -i <private-key.pem> ec2-user@<instance-ip> 'tail -f /var/log/<your-log-file>' | npx logscreen
+```
+
+#### Monitoring Heroku Postgres Queries:
+
+Tail logs related to database queries on a Heroku Postgres database for performance analysis and optimization.
+
+```bash
+heroku pg:psql --app <your-app-name> -c "tail -f /var/log/postgresql/postgresql.log" | npx logscreen
+```
+
+---
+
 Replace the commands above with your specific use case to leverage the benefits of LogScreen's web-based log viewer.
 
 ## Features

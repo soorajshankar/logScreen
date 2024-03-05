@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 const express = require("express");
 const opn = require("opn");
+const path = require('path');
 
 const app = express();
 const port = 5649;
@@ -9,6 +10,9 @@ app.get("/", (req, res) => {
   // res.sendFile(__dirname + "/index.html");
   res.send(html);
 });
+
+// Serve static files from the 'public' folder
+app.use('/public', express.static(path.join(__dirname, 'public')));
 
 const server = app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
@@ -64,59 +68,10 @@ const html = `<!DOCTYPE html>
   <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/babel-standalone@6.26.0/babel.min.js"></script>
-
-  <script type="text/babel">
-    const { useState, useEffect } = React;
-
-    function App() {
-      const [logs, setLogs] = useState([]);
-
-      useEffect(() => {
-        const socket = io();
-
-        function parseAndRenderLog(data) {
-          const [timestamp, logline] = data.split(" :: ");
-
-          try {
-            const parsedJSON = JSON.parse(logline);
-            setLogs(prevLogs => [...prevLogs, { timestamp, content: parsedJSON }]);
-          } catch (error) {
-            setLogs(prevLogs => [...prevLogs, { timestamp, content: logline }]);
-          }
-        }
-
-        socket.on("input", parseAndRenderLog);
-
-        return () => {
-          // Clean up the socket connection on component unmount
-          socket.off("input", parseAndRenderLog);
-        };
-      }, []); // Empty dependency array ensures the effect runs once on mount
-
-      return (
-        <div>
-          <h1 className="text-3xl mb-6">Real-time Input with React</h1>
-          <ul className="list-none p-0">
-            {logs.map((log, index) => (
-              <li key={index} className="bg-white shadow-md rounded-md p-4 mb-4">
-                <div className="text-sm text-gray-500">{log.timestamp}</div>
-                {typeof log.content === 'object' ? (
-                  <div className="json-container">
-                    <button onClick={() => alert('Expand button clicked')}>Expand</button>
-                    <pre>{JSON.stringify(log.content, null, 2)}</pre>
-                  </div>
-                ) : (
-                  <div className="text-lg">{log.content}</div>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-      );
-    }
-
-    ReactDOM.render(<App />, document.getElementById('root'));
-  </script>
+  <!-- Load uuid library from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/uuid@8.3.2/dist/umd/uuidv4.min.js"></script>
+  
+  <script type="text/babel" src="public/app.jsx"></script>
 </body>
 </html>
 `;
