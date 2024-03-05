@@ -12,6 +12,8 @@ command | npx logscreen
 
 Replace `command` with the actual command you want to execute. LogScreen will start a local server and open the logs in your default web browser.
 
+![alt text](image.png)
+
 Here are some examples:
 
 ### Example 1: Viewing Docker Logs

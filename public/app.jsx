@@ -144,14 +144,27 @@ function App() {
   return (
     <div>
       <div className="flex items-center justify-between bg-gray-800 p-4 text-white">
-        <a
-          className="text-3xl mb-6"
-          href="https://github.com/soorajshankar/logScreen"
-          target="_blank"
-          rel="noopener noreferrer"
+        <div
+          // vertical div
+          className="flex flex-col items-start justify-center"
         >
-          | npx logscreen{" "}
-        </a>
+          <a
+            className="text-3xl mb-2"
+            href="https://github.com/soorajshankar/logScreen"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            | npx logscreen{" "}
+          </a>
+          <a
+            className="text-sm"
+            href="https://github.com/sponsors/soorajshankar"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Suppport this project
+          </a>
+        </div>
         <input
           type="text"
           placeholder="Search logs..."

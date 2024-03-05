@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 const express = require("express");
 const opn = require("opn");
-const path = require('path');
+const path = require("path");
 
 const app = express();
 const port = 5649;
@@ -12,10 +12,15 @@ app.get("/", (req, res) => {
 });
 
 // Serve static files from the 'public' folder
-app.use('/public', express.static(path.join(__dirname, 'public')));
+app.use("/public", express.static(path.join(__dirname, "public")));
 
 const server = app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
+  console.log("Opening logscren on http://localhost:" + port);
+  console.log(
+    "Loving logscreen? Consider supporting the project by sponsoring on GitHub: https://github.com/sponsors/soorajshankar"
+  );
+
   opn("http://localhost:" + port); // Open the browser
 });
 
@@ -24,7 +29,7 @@ const io = require("socket.io")(server);
 
 // Socket.io connection event
 io.on("connection", (socket) => {
-  console.log("A user connected");
+  // console.log("::Browser connected");
 
   // Send the real-time input to the connected client
   process.stdin.on("data", (chunk) => {
