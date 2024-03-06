@@ -1,6 +1,10 @@
 # LogScreen
 
-> Loglines can be messy, read it better on a browser.
+💻 Hard to search logs?
+
+LogScreen simplifies the process. Piping logs, visualizing in a web app – it's that easy! 
+
+> This tool has been generated entirely with ChatGPT and hence it is also a demonstration of how useful products can be developed with collaborative reiteration with GPTs. 
 
 ## Usage
 
