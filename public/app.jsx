@@ -166,7 +166,7 @@ function App() {
 
       let level = 'unknown'; // Default log level
       if (match) {
-        level = match[1].toLowerCase(); // Extract log level
+        level = match[1].trim().toLowerCase(); // Extract log level
       }
 
       setLogs((prevLogs) => [
