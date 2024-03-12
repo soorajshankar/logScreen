@@ -161,7 +161,7 @@ function App() {
       const [timestamp, ...loglineParts] = data.split(" :: ");
       const logline = loglineParts.join(" :: ");
 
-      const regex = /\b(Error|Warning|Info|Critical|Debug):|\b(::)/i;
+      const regex = /\b(Error|Warning|Info|Critical|Debug)\s*::?\s*/i;
       const match = logline.match(regex);
 
       let level = 'unknown'; // Default log level
