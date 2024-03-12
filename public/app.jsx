@@ -76,7 +76,7 @@ const LogViewer = ({ logs: rawLogs, searchTerm }) => {
             </div>
             <div className="w-3/4">
               <pre className="text-gray-700 whitespace-pre-wrap break-all">
-                {truncateMessage(log.message)}
+                <ParsedLog log={truncateMessage(log.message)} />
               </pre>
             </div>
           </div>
@@ -107,7 +107,8 @@ const LogViewer = ({ logs: rawLogs, searchTerm }) => {
           </div>
           <div className="max-h-screen overflow-y-auto bg-gray-800 rounded p-4">
             <pre className="text-white whitespace-pre-wrap break-all">
-              {JSON.stringify(selectedLog.message, null, 2)}
+              <ParsedLog log={JSON.stringify(selectedLog.message)} />
+              {/* {JSON.stringify(selectedLog.message, null, 2)} */}
             </pre>
           </div>
         </div>
@@ -116,9 +117,42 @@ const LogViewer = ({ logs: rawLogs, searchTerm }) => {
   );
 };
 
+const ParsedLog = ({ log }) => {
+  const parsedLog = useMemo(() => {
+    const ansiRegex = /\u001b\[\d+m/g;
+    const cleanedLog = log.replace(ansiRegex, '');
+
+    const regex = /(\w+): (.*)/;
+    const match = cleanedLog.match(regex);
+
+    if (!match) {
+      return <span>{cleanedLog}</span>;
+    }
+
+    const [_, level, message] = match;
+
+    const color = {
+      info: 'green',
+      error: 'red',
+      warning: 'orange',
+    }[level.toLowerCase()] || 'black';
+
+    return (
+      <span style={{ color: color }}>
+        <strong>{level}</strong>: {message}
+      </span>
+    );
+  }, [log]);
+
+  return parsedLog;
+};
+
 function App() {
   const [logs, setLogs] = useState([]);
+  const [logLevels, setLogLevels] = useState(new Set(['unknown']));
+  const [selectedLevel, setSelectedLevel] = useState('');
   const [searchTerm, setSearchTerm] = useState("");
+  const [startDateTime, setStartDateTime] = useState('');
 
   useEffect(() => {
     const socket = io();
@@ -127,19 +161,40 @@ function App() {
       const [timestamp, ...loglineParts] = data.split(" :: ");
       const logline = loglineParts.join(" :: ");
 
+      const regex = /\b(Error|Warning|Info|Critical|Debug)\s*::?\s*/i;
+      const match = logline.match(regex);
+
+      let level = 'unknown'; // Default log level
+      if (match) {
+        level = match[1].trim().toLowerCase(); // Extract log level
+      }
+
       setLogs((prevLogs) => [
         ...prevLogs,
-        { key: uuidv4(), timestamp, message: logline },
+        { key: uuidv4(), timestamp, message: logline, level },
       ]);
+
+      setLogLevels(prevLevels => new Set([...prevLevels, level]));
     }
 
     socket.on("input", parseAndRenderLog);
 
     return () => {
-      // Clean up the socket connection on component unmount
       socket.off("input", parseAndRenderLog);
     };
-  }, []); // Empty dependency array ensures the effect runs once on mount
+  }, []);
+
+  const filteredLogs = useMemo(() => {
+    return logs.filter(log => {
+      const logDateTime = new Date(log.timestamp);
+      const filterDateTime = startDateTime ? new Date(startDateTime) : null;
+      return (
+        (selectedLevel === '' || log.level === selectedLevel) &&
+        (searchTerm === '' || log.message.toLowerCase().includes(searchTerm.toLowerCase())) &&
+        (!filterDateTime || logDateTime >= filterDateTime)
+      );
+    });
+  }, [logs, selectedLevel, searchTerm, startDateTime]);
 
   return (
     <div>
@@ -172,9 +227,29 @@ function App() {
           onChange={(e) => setSearchTerm(e.target.value)}
           className="p-2 border border-gray-300 text-gray-800 bg-white rounded w-1/4"
         />
+        <div className="filter-select">
+          <select
+            value={selectedLevel}
+            onChange={(e) => setSelectedLevel(e.target.value)}
+            className="p-2 border border-gray-300 text-gray-800 bg-white rounded"
+          >
+            <option value="">All Levels</option>
+            {Array.from(logLevels).map(level => (
+              <option key={level} value={level}>{level.toUpperCase()}</option>
+            ))}
+          </select>
+        </div>
+        <div className="flex items-center justify-between bg-gray-800 p-4 text-white">
+          <input
+            type="datetime-local"
+            value={startDateTime}
+            onChange={(e) => setStartDateTime(e.target.value)}
+            className="p-2 border border-gray-300 text-gray-800 bg-white rounded"
+          />
+        </div>
       </div>
-      <LogViewer logs={logs} searchTerm={searchTerm} />
-    </div>
+      <LogViewer logs={filteredLogs} searchTerm={searchTerm} />
+      </div>
   );
 }
 
